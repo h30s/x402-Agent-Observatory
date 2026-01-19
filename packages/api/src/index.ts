@@ -7,6 +7,7 @@ import { transactionsRouter } from './routes/transactions.js';
 import { agentsRouter } from './routes/agents.js';
 import { searchRouter } from './routes/search.js';
 import { analyticsRouter } from './routes/analytics.js';
+import { anomaliesRouter } from './routes/anomalies.js';
 import { startMockIndexer } from './services/mockIndexer.js';
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/api/v1/transactions', transactionsRouter);
 app.use('/api/v1/agents', agentsRouter);
 app.use('/api/v1/search', searchRouter);
 app.use('/api/v1/analytics', analyticsRouter);
+app.use('/api/v1/anomalies', anomaliesRouter);
 
 // Health check
 app.get('/health', (req, res) => {

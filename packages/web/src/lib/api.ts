@@ -94,6 +94,22 @@ export async function fetchProtocols(): Promise<{ protocols: ProtocolStats[] }> 
     return res.json();
 }
 
+export interface Anomaly {
+    id: string;
+    timestamp: string;
+    type: string;
+    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    agent: string;
+    description: string;
+    confidenceScore: string;
+}
+
+// Fetch anomalies
+export async function fetchAnomalies(): Promise<Anomaly[]> {
+    const res = await fetch(`${API_URL}/api/v1/anomalies`);
+    return res.json();
+}
+
 // Fetch agents
 export async function fetchAgents(): Promise<{ data: Agent[]; total: number }> {
     const res = await fetch(`${API_URL}/api/v1/agents`);
