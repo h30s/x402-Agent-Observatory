@@ -199,18 +199,24 @@ export function getAllAgents() {
     })).sort((a, b) => parseFloat(b.totalVolume) - parseFloat(a.totalVolume));
 }
 
-export function getAnalytics() {
+export function getAnalytics(timeRange: '1h' | '24h' | '7d' = '24h') {
     const now = Date.now();
-    const dayAgo = now - 24 * 60 * 60 * 1000;
 
-    const last24h = mockTransactions.filter(tx => new Date(tx.timestamp).getTime() > dayAgo);
+    // Determine start time based on range
+    let rangeStart = now;
+    if (timeRange === '1h') rangeStart = now - 60 * 60 * 1000;
+    else if (timeRange === '7d') rangeStart = now - 7 * 24 * 60 * 60 * 1000;
+    else rangeStart = now - 24 * 60 * 60 * 1000; // default 24h
 
-    const volume24h = last24h.reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
-    const successful24h = last24h.filter(tx => tx.status === 'success').length;
+    // Filter transactions for the selected range to calculate totals
+    const rangeTxs = mockTransactions.filter(tx => new Date(tx.timestamp).getTime() > rangeStart);
 
-    // Protocol volumes
+    const rangeVolume = rangeTxs.reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+    const rangeSuccessful = rangeTxs.filter(tx => tx.status === 'success').length;
+
+    // Protocol volumes (always based on current range)
     const protocolVolumes: Record<string, number> = {};
-    last24h.forEach(tx => {
+    rangeTxs.forEach(tx => {
         protocolVolumes[tx.protocol] = (protocolVolumes[tx.protocol] || 0) + parseFloat(tx.amount);
     });
 
@@ -219,32 +225,79 @@ export function getAnalytics() {
         .sort((a, b) => parseFloat(b.volume) - parseFloat(a.volume))
         .slice(0, 5);
 
-    // Hourly volume for chart
-    const hourlyVolume: { hour: string; volume: number; count: number }[] = [];
-    for (let i = 23; i >= 0; i--) {
-        const hourStart = new Date(now - i * 60 * 60 * 1000);
-        hourStart.setMinutes(0, 0, 0);
-        const hourEnd = new Date(hourStart.getTime() + 60 * 60 * 1000);
+    // Dynamic Chart Bucketing
+    const chartData: { hour: string; volume: number; count: number }[] = [];
 
-        const hourTxs = mockTransactions.filter(tx => {
-            const txTime = new Date(tx.timestamp).getTime();
-            return txTime >= hourStart.getTime() && txTime < hourEnd.getTime();
-        });
+    if (timeRange === '1h') {
+        // 5-minute intervals for 1H
+        for (let i = 11; i >= 0; i--) {
+            const bucketStart = new Date(now - i * 5 * 60 * 1000);
+            bucketStart.setSeconds(0, 0); // round to minute
+            // further round to nearest 5 min
+            const min = bucketStart.getMinutes();
+            bucketStart.setMinutes(min - (min % 5));
 
-        hourlyVolume.push({
-            hour: hourStart.toISOString().slice(11, 16),
-            volume: hourTxs.reduce((sum, tx) => sum + parseFloat(tx.amount), 0),
-            count: hourTxs.length,
-        });
+            const bucketEnd = new Date(bucketStart.getTime() + 5 * 60 * 1000);
+
+            const bucketTxs = mockTransactions.filter(tx => {
+                const txTime = new Date(tx.timestamp).getTime();
+                return txTime >= bucketStart.getTime() && txTime < bucketEnd.getTime();
+            });
+
+            chartData.push({
+                hour: bucketStart.toISOString().slice(11, 16), // HH:MM
+                volume: bucketTxs.reduce((sum, tx) => sum + parseFloat(tx.amount), 0),
+                count: bucketTxs.length
+            });
+        }
+    } else if (timeRange === '7d') {
+        // Daily intervals for 7D
+        for (let i = 6; i >= 0; i--) {
+            const bucketStart = new Date(now - i * 24 * 60 * 60 * 1000);
+            bucketStart.setHours(0, 0, 0, 0); // Start of day
+            const bucketEnd = new Date(bucketStart.getTime() + 24 * 60 * 60 * 1000);
+
+            const bucketTxs = mockTransactions.filter(tx => {
+                const txTime = new Date(tx.timestamp).getTime();
+                return txTime >= bucketStart.getTime() && txTime < bucketEnd.getTime();
+            });
+
+            // Format day like 'Mon', 'Tue'
+            const dayName = bucketStart.toLocaleDateString('en-US', { weekday: 'short' });
+
+            chartData.push({
+                hour: dayName,
+                volume: bucketTxs.reduce((sum, tx) => sum + parseFloat(tx.amount), 0),
+                count: bucketTxs.length
+            });
+        }
+    } else {
+        // Default 24H: Hourly intervals
+        for (let i = 23; i >= 0; i--) {
+            const bucketStart = new Date(now - i * 60 * 60 * 1000);
+            bucketStart.setMinutes(0, 0, 0);
+            const bucketEnd = new Date(bucketStart.getTime() + 60 * 60 * 1000);
+
+            const bucketTxs = mockTransactions.filter(tx => {
+                const txTime = new Date(tx.timestamp).getTime();
+                return txTime >= bucketStart.getTime() && txTime < bucketEnd.getTime();
+            });
+
+            chartData.push({
+                hour: bucketStart.toISOString().slice(11, 16), // HH:MM
+                volume: bucketTxs.reduce((sum, tx) => sum + parseFloat(tx.amount), 0),
+                count: bucketTxs.length,
+            });
+        }
     }
 
     return {
-        volume24h: volume24h.toFixed(2),
-        transactions24h: last24h.length,
-        uniqueAgents24h: new Set(last24h.map(tx => tx.agent)).size,
-        successRate24h: last24h.length > 0 ? (successful24h / last24h.length).toFixed(4) : '0',
+        volume24h: rangeVolume.toFixed(2), // This key name is retained for compatibility, but value reflects range
+        transactions24h: rangeTxs.length,
+        uniqueAgents24h: new Set(rangeTxs.map(tx => tx.agent)).size,
+        successRate24h: rangeTxs.length > 0 ? (rangeSuccessful / rangeTxs.length).toFixed(4) : '0',
         topProtocols,
-        hourlyVolume,
+        hourlyVolume: chartData, // Key retained as 'hourlyVolume' but content varies
     };
 }
 

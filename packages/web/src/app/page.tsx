@@ -8,15 +8,16 @@ import { fetchAnalytics, Analytics } from '@/lib/api';
 
 export default function DashboardPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [timeRange, setTimeRange] = useState<'1h' | '24h' | '7d'>('24h');
 
   useEffect(() => {
-    fetchAnalytics().then(setAnalytics).catch(console.error);
-    const interval = setInterval(() => fetchAnalytics().then(setAnalytics), 30000);
+    fetchAnalytics(timeRange).then(setAnalytics).catch(console.error);
+    const interval = setInterval(() => fetchAnalytics(timeRange).then(setAnalytics), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [timeRange]);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Top Ticker Bar */}
       {analytics && (
         <StatsCards
@@ -38,11 +39,20 @@ export default function DashboardPage() {
             {/* Volume Chart Panel */}
             <div className="bg-white border border-[var(--border)] rounded-sm p-4 h-[400px] flex flex-col">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Volume / 24H</h3>
+                <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Volume / {timeRange.toUpperCase()}</h3>
                 <div className="flex gap-2 text-[10px] font-mono">
-                  <button className="px-2 py-0.5 bg-[var(--bg-active)] rounded text-[var(--text-primary)]">1H</button>
-                  <button className="px-2 py-0.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)]">24H</button>
-                  <button className="px-2 py-0.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)]">7D</button>
+                  {(['1h', '24h', '7d'] as const).map((range) => (
+                    <button
+                      key={range}
+                      onClick={() => setTimeRange(range)}
+                      className={`px-2 py-0.5 rounded transition-colors ${timeRange === range
+                        ? 'bg-[var(--bg-active)] text-[var(--text-primary)]'
+                        : 'hover:bg-[var(--bg-hover)] text-[var(--text-muted)]'
+                        }`}
+                    >
+                      {range.toUpperCase()}
+                    </button>
+                  ))}
                 </div>
               </div>
               <div className="flex-1">
@@ -52,9 +62,11 @@ export default function DashboardPage() {
 
             {/* Protocol Matrix */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white border border-[var(--border)] rounded-sm p-4 h-[300px]">
+              <div className="bg-white border border-[var(--border)] rounded-sm p-4 h-[300px] flex flex-col">
                 <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-4">Protocol Dominance</h3>
-                {analytics && <ProtocolPieChart data={analytics.topProtocols} />}
+                <div className="flex-1 min-h-0">
+                  {analytics && <ProtocolPieChart data={analytics.topProtocols} />}
+                </div>
               </div>
 
               {/* Placeholder for future map/network graph */}
@@ -69,7 +81,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Panel: Market Tape */}
-        <div className="h-full overflow-hidden border-l border-[var(--border)] bg-white">
+        <div className="h-full overflow-hidden bg-white">
           <LiveFeed />
         </div>
 

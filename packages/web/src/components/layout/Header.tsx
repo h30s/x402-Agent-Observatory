@@ -7,7 +7,7 @@ export function Header() {
     const [searchQuery, setSearchQuery] = useState('');
 
     return (
-        <header className="fixed top-0 right-0 left-64 h-16 bg-[var(--bg-secondary)] border-b border-[var(--border)] z-40 flex items-center justify-between px-8">
+        <header className="h-16 w-full bg-[var(--bg-secondary)] border-b border-[var(--border)] flex items-center justify-between px-8">
             {/* Search */}
             <div className="flex-1 max-w-lg">
                 <div className="relative group">

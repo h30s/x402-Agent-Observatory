@@ -70,8 +70,8 @@ export async function fetchTransactions(params?: {
 }
 
 // Fetch analytics
-export async function fetchAnalytics(): Promise<Analytics> {
-    const res = await fetch(`${API_URL}/api/v1/analytics/overview`);
+export async function fetchAnalytics(timeRange: '1h' | '24h' | '7d' = '24h'): Promise<Analytics> {
+    const res = await fetch(`${API_URL}/api/v1/analytics/overview?range=${timeRange}`);
     return res.json();
 }
 

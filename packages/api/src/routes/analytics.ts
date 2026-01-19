@@ -5,7 +5,8 @@ export const analyticsRouter = Router();
 
 // GET /api/v1/analytics/overview
 analyticsRouter.get('/overview', (req, res) => {
-    const analytics = getAnalytics();
+    const range = (req.query.range as '1h' | '24h' | '7d') || '24h';
+    const analytics = getAnalytics(range);
     res.json(analytics);
 });
 
