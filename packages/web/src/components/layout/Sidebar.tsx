@@ -10,12 +10,11 @@ import {
     ArrowLeftRight,
     BarChart3,
     AlertTriangle,
-    Code,
-    ExternalLink
+    Settings
 } from 'lucide-react';
 
 const navItems = [
-    { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/', label: 'Overview', icon: LayoutDashboard },
     { href: '/search', label: 'Search', icon: Search },
     { href: '/agents', label: 'Agents', icon: Users },
     { href: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
@@ -27,60 +26,40 @@ export function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <aside className="fixed left-0 top-0 bottom-0 w-64 bg-[var(--bg-secondary)] border-r border-[var(--border)] z-50 flex flex-col">
-            {/* Logo */}
-            <div className="h-16 flex items-center gap-3 px-5 border-b border-[var(--border)]">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
-                    <Telescope className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                    <h1 className="font-bold text-[var(--text-primary)] text-lg leading-none">x402</h1>
-                    <p className="text-xs text-[var(--text-muted)]">Observatory</p>
+        <aside className="w-14 bg-[var(--bg-app)] border-r border-[var(--border)] flex flex-col items-center py-4 z-50">
+            {/* Brand Icon */}
+            <div className="mb-6">
+                <div className="w-8 h-8 rounded bg-[var(--text-primary)] text-white flex items-center justify-center">
+                    <Telescope className="w-4 h-4" />
                 </div>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 py-4 px-3 space-y-1">
+            {/* Navigation Icons */}
+            <nav className="flex-1 flex flex-col gap-4 w-full items-center">
                 {navItems.map(({ href, label, icon: Icon }) => {
                     const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
                     return (
                         <Link
                             key={href}
                             href={href}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${isActive
-                                    ? 'bg-[var(--primary)] bg-opacity-20 text-[var(--primary)] border border-[var(--primary)] border-opacity-30'
-                                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)]'
+                            title={label}
+                            className={`w-9 h-9 rounded flex items-center justify-center transition-all ${isActive
+                                    ? 'bg-[var(--bg-active)] text-[var(--text-primary)] shadow-sm'
+                                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
                                 }`}
                         >
-                            <Icon className="w-5 h-5" />
-                            <span className="font-medium text-sm">{label}</span>
+                            <Icon className="w-4 h-4" />
                         </Link>
                     );
                 })}
             </nav>
 
-            {/* MCP Status */}
-            <div className="p-3 border-t border-[var(--border)]">
-                <div className="glass-card p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Code className="w-4 h-4 text-[var(--secondary)]" />
-                        <span className="text-xs font-semibold text-[var(--text-primary)]">MCP Server</span>
-                    </div>
-                    <p className="text-xs text-[var(--text-muted)] mb-3">
-                        AI assistants can query this observatory
-                    </p>
-                    <a
-                        href="#"
-                        className="flex items-center gap-1 text-xs text-[var(--secondary)] hover:underline"
-                    >
-                        View docs <ExternalLink className="w-3 h-3" />
-                    </a>
-                </div>
-            </div>
-
-            {/* Version */}
-            <div className="px-5 py-3 text-[10px] text-[var(--text-muted)]">
-                v1.0.0 • Cronos Testnet
+            {/* Bottom Icons */}
+            <div className="mt-auto flex flex-col gap-4">
+                <button className="w-9 h-9 rounded flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]">
+                    <Settings className="w-4 h-4" />
+                </button>
+                <div className="w-2 h-2 rounded-full bg-[var(--success)]" title="System Operational"></div>
             </div>
         </aside>
     );

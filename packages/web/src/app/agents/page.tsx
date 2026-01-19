@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { fetchAgents, Agent, formatAddress, formatAmount } from '@/lib/api';
-import { Trophy, TrendingUp, Activity, ExternalLink, Crown, Medal, Award } from 'lucide-react';
+import { Trophy, TrendingUp, ExternalLink, Medal } from 'lucide-react';
 
-function getRankIcon(rank: number) {
-    if (rank === 1) return <Crown className="w-5 h-5 text-yellow-400" />;
-    if (rank === 2) return <Medal className="w-5 h-5 text-gray-300" />;
-    if (rank === 3) return <Award className="w-5 h-5 text-amber-600" />;
-    return <span className="text-sm text-[var(--text-muted)] font-medium">#{rank}</span>;
+function getRankBadge(rank: number) {
+    if (rank === 1) return <div className="w-8 h-8 rounded-full bg-yellow-100 text-yellow-700 flex items-center justify-center font-bold text-sm border border-yellow-200">1</div>;
+    if (rank === 2) return <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center font-bold text-sm border border-gray-200">2</div>;
+    if (rank === 3) return <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-800 flex items-center justify-center font-bold text-sm border border-orange-200">3</div>;
+    return <span className="text-sm text-[var(--text-muted)] font-medium pl-2">#{rank}</span>;
 }
 
 export default function AgentsPage() {
@@ -28,129 +28,141 @@ export default function AgentsPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+                <div className="text-center">
+                    <div className="w-10 h-10 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-sm text-[var(--text-muted)] font-medium">Loading leaderboard...</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 max-w-7xl mx-auto">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-[var(--text-primary)]">Agent Leaderboard</h1>
-                    <p className="text-[var(--text-secondary)] mt-1">
+                    <h1 className="text-2xl font-bold text-[var(--text-primary)]">Agent Leaderboard</h1>
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">
                         Top performing x402 agents ranked by volume and success rate
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Trophy className="w-8 h-8 text-[var(--accent)]" />
+                <div className="p-3 bg-yellow-50 rounded-xl border border-yellow-100">
+                    <Trophy className="w-6 h-6 text-yellow-600" />
                 </div>
             </div>
 
-            {/* Top 3 podium */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            {/* Top 3 Cards - Clean Professional Style */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {agents.slice(0, 3).map((agent, i) => (
                     <div
                         key={agent.address}
-                        className={`glass-card p-6 text-center relative overflow-hidden ${i === 0 ? 'border-yellow-400/30' : i === 1 ? 'border-gray-300/30' : 'border-amber-600/30'
-                            }`}
+                        className="card p-6 bg-white border border-[var(--border)] shadow-sm hover:shadow-md transition-all relative overflow-hidden"
                     >
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent" />
-                        <div className="mb-3">{getRankIcon(i + 1)}</div>
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] mx-auto mb-4 flex items-center justify-center">
-                            <span className="text-2xl font-bold text-white">
-                                {agent.address.slice(2, 4).toUpperCase()}
-                            </span>
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <Medal className="w-24 h-24" />
                         </div>
-                        <p className="font-mono text-sm text-[var(--text-primary)] mb-2">
-                            {formatAddress(agent.address)}
-                        </p>
-                        <p className="text-2xl font-bold text-[var(--text-primary)] glow-text">
-                            {formatAmount(agent.totalVolume)}
-                        </p>
-                        <div className="flex items-center justify-center gap-4 mt-3 text-sm">
-                            <span className="text-[var(--success)]">
-                                {(parseFloat(agent.successRate) * 100).toFixed(1)}% success
-                            </span>
-                            <span className="text-[var(--text-muted)]">
-                                {agent.totalTransactions} txs
-                            </span>
+
+                        <div className="relative z-10 flex flex-col items-center text-center">
+                            <div className="mb-4">{getRankBadge(i + 1)}</div>
+
+                            <div className="w-16 h-16 rounded-full bg-[var(--primary-light)] text-[var(--primary)] text-xl font-bold flex items-center justify-center mb-3">
+                                {agent.address.slice(2, 4).toUpperCase()}
+                            </div>
+
+                            <Link href={`/agents/${agent.address}`} className="font-mono text-sm font-medium text-[var(--text-primary)] hover:text-[var(--primary)] hover:underline mb-1">
+                                {formatAddress(agent.address)}
+                            </Link>
+
+                            <div className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+                                {formatAmount(agent.totalVolume)}
+                            </div>
+
+                            <div className="grid grid-cols-2 w-full gap-2 text-xs border-t border-[var(--border)] pt-4">
+                                <div className="text-center">
+                                    <div className="text-[var(--text-muted)]">Success Rate</div>
+                                    <div className="font-semibold text-green-600">{(parseFloat(agent.successRate) * 100).toFixed(1)}%</div>
+                                </div>
+                                <div className="text-center border-l border-[var(--border)]">
+                                    <div className="text-[var(--text-muted)]">Transactions</div>
+                                    <div className="font-semibold text-[var(--text-primary)]">{agent.totalTransactions}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Full leaderboard */}
-            <div className="glass-card overflow-hidden">
-                <div className="p-4 border-b border-[var(--border)]">
-                    <h2 className="text-lg font-semibold text-[var(--text-primary)]">All Agents</h2>
+            {/* Full leaderboard Table */}
+            <div className="card overflow-hidden bg-white border border-[var(--border)] shadow-sm">
+                <div className="px-6 py-4 border-b border-[var(--border)] bg-gray-50 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold text-[var(--text-primary)]">All Agents</h2>
+                    <span className="text-xs text-[var(--text-muted)]">{agents.length} agents tracking</span>
                 </div>
-                <div className="divide-y divide-[var(--border)]">
-                    {agents.map((agent, i) => (
-                        <div
-                            key={agent.address}
-                            className="flex items-center gap-4 p-4 hover:bg-[var(--bg-elevated)] transition-colors"
-                        >
-                            {/* Rank */}
-                            <div className="w-8 flex items-center justify-center">
-                                {getRankIcon(i + 1)}
-                            </div>
-
-                            {/* Avatar */}
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
-                                <span className="text-sm font-bold text-white">
-                                    {agent.address.slice(2, 4).toUpperCase()}
-                                </span>
-                            </div>
-
-                            {/* Address */}
-                            <div className="flex-1">
-                                <p className="font-mono text-[var(--text-primary)]">
-                                    {formatAddress(agent.address)}
-                                </p>
-                                <p className="text-xs text-[var(--text-muted)]">
-                                    Last active: {new Date(agent.lastActive).toLocaleDateString()}
-                                </p>
-                            </div>
-
-                            {/* Stats */}
-                            <div className="text-right mr-4">
-                                <p className="font-semibold text-[var(--text-primary)]">
-                                    {formatAmount(agent.totalVolume)}
-                                </p>
-                                <p className="text-xs text-[var(--text-muted)]">
-                                    {agent.totalTransactions} transactions
-                                </p>
-                            </div>
-
-                            {/* Success rate */}
-                            <div className="w-24 text-right">
-                                <div className="flex items-center gap-1 justify-end">
-                                    <TrendingUp className="w-3 h-3 text-[var(--success)]" />
-                                    <span className="font-medium text-[var(--success)]">
-                                        {(parseFloat(agent.successRate) * 100).toFixed(1)}%
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Reputation */}
-                            <div className="w-20 text-right">
-                                <span className="badge badge-info">
-                                    {parseFloat(agent.reputationScore).toFixed(0)} pts
-                                </span>
-                            </div>
-
-                            {/* View link */}
-                            <Link
-                                href={`/agents/${agent.address}`}
-                                className="p-2 rounded-lg hover:bg-[var(--bg-card)] transition-colors"
+                <table className="w-full text-left">
+                    <thead className="bg-gray-50 text-xs uppercase text-[var(--text-muted)] font-semibold">
+                        <tr>
+                            <th className="px-6 py-3 w-16 text-center">Rank</th>
+                            <th className="px-6 py-3">Agent</th>
+                            <th className="px-6 py-3 text-right">Volume</th>
+                            <th className="px-6 py-3 text-right">Transactions</th>
+                            <th className="px-6 py-3 text-right">Success Rate</th>
+                            <th className="px-6 py-3 text-right">Reputation</th>
+                            <th className="px-6 py-3 w-10"></th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border)]">
+                        {agents.map((agent, i) => (
+                            <tr
+                                key={agent.address}
+                                className="hover:bg-[var(--bg-elevated)] transition-colors group"
                             >
-                                <ExternalLink className="w-4 h-4 text-[var(--text-muted)]" />
-                            </Link>
-                        </div>
-                    ))}
-                </div>
+                                <td className="px-6 py-4 text-center">
+                                    {getRankBadge(i + 1)}
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-[var(--primary-light)] text-[var(--primary)] text-xs font-bold flex items-center justify-center">
+                                            {agent.address.slice(2, 4).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <p className="font-mono text-sm font-medium text-[var(--text-primary)]">
+                                                {formatAddress(agent.address)}
+                                            </p>
+                                            <p className="text-[10px] text-[var(--text-muted)]">
+                                                Last active: {new Date(agent.lastActive).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 text-right font-medium text-[var(--text-primary)]">
+                                    {formatAmount(agent.totalVolume)}
+                                </td>
+                                <td className="px-6 py-4 text-right text-sm text-[var(--text-secondary)]">
+                                    {agent.totalTransactions}
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                    <div className="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                                        <TrendingUp className="w-3 h-3" />
+                                        {(parseFloat(agent.successRate) * 100).toFixed(1)}%
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
+                                        {parseFloat(agent.reputationScore).toFixed(0)}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                    <Link
+                                        href={`/agents/${agent.address}`}
+                                        className="p-1.5 rounded-md hover:bg-gray-100 text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors inline-block"
+                                    >
+                                        <ExternalLink className="w-4 h-4" />
+                                    </Link>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );

@@ -5,72 +5,19 @@ import { StatsCards } from '@/components/dashboard/StatsCards';
 import { LiveFeed } from '@/components/dashboard/LiveFeed';
 import { VolumeChart, ProtocolPieChart } from '@/components/dashboard/Charts';
 import { fetchAnalytics, Analytics } from '@/lib/api';
-import { Telescope, Sparkles, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
 
 export default function DashboardPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadAnalytics = async () => {
-      try {
-        const data = await fetchAnalytics();
-        setAnalytics(data);
-      } catch (error) {
-        console.error('Failed to load analytics:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadAnalytics();
-    // Refresh analytics every 30 seconds
-    const interval = setInterval(loadAnalytics, 30000);
+    fetchAnalytics().then(setAnalytics).catch(console.error);
+    const interval = setInterval(() => fetchAnalytics().then(setAnalytics), 30000);
     return () => clearInterval(interval);
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[var(--text-muted)]">Loading observatory data...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Hero Section */}
-      <div className="glass-card p-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[var(--primary)] opacity-5" />
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-3">
-            <Telescope className="w-8 h-8 text-[var(--primary)]" />
-            <h1 className="text-3xl font-bold text-[var(--text-primary)] glow-text">
-              x402 Observatory
-            </h1>
-          </div>
-          <p className="text-lg text-[var(--text-secondary)] mb-6 max-w-2xl">
-            Real-time visibility into the Cronos agentic economy. Monitor transactions,
-            analyze agent behavior, and query the ecosystem with natural language.
-          </p>
-          <div className="flex items-center gap-4">
-            <Link href="/search" className="btn-primary flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Try Natural Language Search
-            </Link>
-            <Link href="/agents" className="btn-secondary flex items-center gap-2">
-              View Agent Leaderboard
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
+    <div className="flex flex-col h-screen overflow-hidden">
+      {/* Top Ticker Bar */}
       {analytics && (
         <StatsCards
           volume24h={analytics.volume24h}
@@ -80,16 +27,53 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Charts Row */}
-      {analytics && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <VolumeChart data={analytics.hourlyVolume} />
-          <ProtocolPieChart data={analytics.topProtocols} />
-        </div>
-      )}
+      {/* Main Grid Layout */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_400px] overflow-hidden">
 
-      {/* Live Feed */}
-      <LiveFeed />
+        {/* Left Panel: Analytics Grids */}
+        <div className="bg-[var(--bg-app)] p-4 overflow-y-auto">
+          {/* Chart Container */}
+          <div className="grid grid-cols-1 gap-4 h-full">
+
+            {/* Volume Chart Panel */}
+            <div className="bg-white border border-[var(--border)] rounded-sm p-4 h-[400px] flex flex-col">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Volume / 24H</h3>
+                <div className="flex gap-2 text-[10px] font-mono">
+                  <button className="px-2 py-0.5 bg-[var(--bg-active)] rounded text-[var(--text-primary)]">1H</button>
+                  <button className="px-2 py-0.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)]">24H</button>
+                  <button className="px-2 py-0.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)]">7D</button>
+                </div>
+              </div>
+              <div className="flex-1">
+                {analytics && <VolumeChart data={analytics.hourlyVolume} />}
+              </div>
+            </div>
+
+            {/* Protocol Matrix */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white border border-[var(--border)] rounded-sm p-4 h-[300px]">
+                <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-4">Protocol Dominance</h3>
+                {analytics && <ProtocolPieChart data={analytics.topProtocols} />}
+              </div>
+
+              {/* Placeholder for future map/network graph */}
+              <div className="bg-white border border-[var(--border)] rounded-sm p-4 h-[300px] relative flex flex-col items-center justify-center text-[var(--text-muted)] border-dashed">
+                <h3 className="absolute top-4 left-4 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Network Map</h3>
+                <div className="text-sm">Signal Visualization</div>
+                <div className="text-xs mt-1 opacity-50 font-mono">Coming Soon</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Right Panel: Market Tape */}
+        <div className="h-full overflow-hidden border-l border-[var(--border)] bg-white">
+          <LiveFeed />
+        </div>
+
+      </div>
     </div>
   );
 }

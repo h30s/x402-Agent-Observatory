@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Sparkles, ArrowRight } from 'lucide-react';
+import { Search, Sparkles, ArrowRight, CornerDownRight, Command } from 'lucide-react';
 import { searchTransactions, SearchResult, formatAddress, formatAmount, formatTimestamp } from '@/lib/api';
 
 const suggestions = [
-    "Failed payments in the last hour",
-    "Top swaps over $500 today",
-    "Transactions with VVS Finance",
-    "Show successful transfers",
+    "Failed payments > $500",
+    "High slippage VVS swaps",
+    "Anomalous agent spikes",
+    "Liquidity pool interactions",
 ];
 
 export function SearchBar() {
@@ -33,83 +33,93 @@ export function SearchBar() {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto">
-            {/* Search input */}
-            <form onSubmit={(e) => { e.preventDefault(); handleSearch(query); }} className="relative mb-4">
-                <div className="relative">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
+        <div className="w-full max-w-5xl mx-auto font-mono">
+            {/* Terminal Input */}
+            <div className="mb-6">
+                <form onSubmit={(e) => { e.preventDefault(); handleSearch(query); }} className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <span className="text-[var(--success)] mr-2">➜</span>
+                        <span className="text-[var(--text-muted)]">~</span>
+                    </div>
                     <input
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search with natural language... (e.g., 'failed swaps over $500 today')"
-                        className="w-full pl-14 pr-32 py-5 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl text-lg text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary-glow)] search-input transition-all"
+                        placeholder="query_network --filter='failed swaps'"
+                        className="block w-full pl-12 pr-12 py-4 bg-[var(--bg-app)] border border-[var(--border)] rounded-sm text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] font-mono shadow-inner transition-colors"
                     />
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 btn-primary flex items-center gap-2"
-                    >
-                        <Sparkles className="w-4 h-4" />
-                        Search
-                    </button>
-                </div>
-            </form>
+                    <div className="absolute inset-y-0 right-4 flex items-center">
+                        {isLoading ? (
+                            <div className="w-4 h-4 border-2 border-[var(--text-muted)] border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            <CornerDownRight className="w-4 h-4 text-[var(--text-muted)]" />
+                        )}
+                    </div>
+                </form>
 
-            {/* Suggestions */}
-            <div className="flex flex-wrap gap-2 mb-6">
-                {suggestions.map((suggestion) => (
-                    <button
-                        key={suggestion}
-                        onClick={() => handleSearch(suggestion)}
-                        className="px-4 py-2 text-sm bg-[var(--bg-card)] text-[var(--text-secondary)] rounded-full border border-[var(--border)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-all"
-                    >
-                        {suggestion}
-                    </button>
-                ))}
+                {/* Quick Commands */}
+                <div className="flex gap-2 mt-2 text-xs">
+                    {suggestions.map((suggestion) => (
+                        <button
+                            key={suggestion}
+                            onClick={() => handleSearch(suggestion)}
+                            className="px-2 py-1 bg-[var(--bg-panel)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--text-muted)] transition-colors"
+                        >
+                            {suggestion}
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            {/* Results */}
+            {/* Terminal Output Results */}
             {results && (
-                <div className="glass-card overflow-hidden">
-                    {/* Interpretation */}
-                    <div className="p-4 border-b border-[var(--border)] bg-[var(--primary)] bg-opacity-10">
+                <div className="bg-[var(--bg-panel)] border border-[var(--border)] rounded-sm overflow-hidden">
+                    {/* Output Header */}
+                    <div className="p-3 border-b border-[var(--border)] bg-[var(--bg-app)] flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
-                            <Sparkles className="w-4 h-4 text-[var(--primary)]" />
-                            <span className="text-sm text-[var(--text-secondary)]">Interpreted as:</span>
+                            <span className="text-[var(--success)]">✔</span>
+                            <span className="text-[var(--text-secondary)]">INTERPRETATION:</span>
+                            <span className="text-[var(--text-primary)] font-bold">"{results.interpretation}"</span>
                         </div>
-                        <p className="text-[var(--text-primary)] font-medium mt-1">{results.interpretation}</p>
-                        <p className="text-xs text-[var(--text-muted)] mt-1">{results.totalMatches} results found</p>
+                        <div className="text-[var(--text-muted)]">
+                            {results.totalMatches} MATCHES FOUND
+                        </div>
                     </div>
 
-                    {/* Results list */}
-                    <div className="divide-y divide-[var(--border)] max-h-[400px] overflow-y-auto">
+                    {/* Results Table */}
+                    <div className="divide-y divide-[var(--border)] max-h-[60vh] overflow-y-auto text-xs">
                         {results.results.length === 0 ? (
                             <div className="p-8 text-center text-[var(--text-muted)]">
-                                No transactions match your query
+                                NO DATA RETURNED
                             </div>
                         ) : (
-                            results.results.map((tx) => (
-                                <div key={tx.id} className="flex items-center gap-4 p-4 hover:bg-[var(--bg-elevated)] transition-colors">
-                                    <div className={`badge ${tx.status === 'success' ? 'badge-success' : 'badge-error'}`}>
-                                        {tx.status}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="font-mono text-sm text-[var(--text-primary)]">
-                                                {formatAddress(tx.agent)}
-                                            </span>
-                                            <ArrowRight className="w-3 h-3 text-[var(--text-muted)]" />
-                                            <span className="text-sm text-[var(--secondary)]">{tx.protocol}</span>
-                                        </div>
-                                        <span className="text-xs text-[var(--text-muted)]">{tx.type} • {formatTimestamp(tx.timestamp)}</span>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-semibold text-[var(--text-primary)]">{formatAmount(tx.amount)}</p>
-                                        <p className="text-xs text-[var(--text-muted)]">{tx.token}</p>
-                                    </div>
-                                </div>
-                            ))
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-[var(--bg-app)] text-[var(--text-muted)]">
+                                    <tr>
+                                        <th className="p-3 font-medium">STATUS</th>
+                                        <th className="p-3 font-medium">TIMESTAMP</th>
+                                        <th className="p-3 font-medium">AGENT</th>
+                                        <th className="p-3 font-medium">PROTOCOL</th>
+                                        <th className="p-3 font-medium">TYPE</th>
+                                        <th className="p-3 font-medium text-right">VALUE</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[var(--border)]">
+                                    {results.results.map((tx) => (
+                                        <tr key={tx.id} className="hover:bg-[var(--bg-hover)] cursor-pointer group transition-colors">
+                                            <td className="p-3">
+                                                <div className={`w-2 h-2 rounded-full ${tx.status === 'success' ? 'bg-[var(--success)]' : 'bg-[var(--error)]'
+                                                    }`} />
+                                            </td>
+                                            <td className="p-3 text-[var(--text-secondary)]">{formatTimestamp(tx.timestamp)}</td>
+                                            <td className="p-3 text-[var(--primary)] font-medium font-mono">{formatAddress(tx.agent)}</td>
+                                            <td className="p-3">{tx.protocol}</td>
+                                            <td className="p-3 uppercase text-[10px] tracking-wide">{tx.type}</td>
+                                            <td className="p-3 text-right font-medium">{formatAmount(tx.amount)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         )}
                     </div>
                 </div>

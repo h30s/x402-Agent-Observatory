@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { Header } from "@/components/layout/Header";
 
 const inter = Inter({
   subsets: ["latin"],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: '--font-jetbrains',
   display: 'swap',
 });
 
@@ -21,16 +28,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
-        <div className="flex min-h-screen relative z-10">
-          <Sidebar />
-          <div className="flex-1 flex flex-col ml-64">
-            <Header />
-            <main className="flex-1 p-6 pt-20">
-              {children}
-            </main>
-          </div>
+    <html lang="en">
+      <body className={`${inter.variable} ${jetbrains.variable} flex h-screen overflow-hidden bg-[var(--bg-app)]`}>
+        {/* Icon Rail Sidebar */}
+        <Sidebar />
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <Header />
+          <main className="flex-1 relative overflow-hidden">
+            {children}
+          </main>
         </div>
       </body>
     </html>
