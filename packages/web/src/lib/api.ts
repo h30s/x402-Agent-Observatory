@@ -81,6 +81,19 @@ export async function fetchEcosystemHealth() {
     return res.json();
 }
 
+export interface ProtocolStats {
+    name: string;
+    transactions: number;
+    volume: string;
+    successRate: string;
+}
+
+// Fetch protocols
+export async function fetchProtocols(): Promise<{ protocols: ProtocolStats[] }> {
+    const res = await fetch(`${API_URL}/api/v1/analytics/protocols`);
+    return res.json();
+}
+
 // Fetch agents
 export async function fetchAgents(): Promise<{ data: Agent[]; total: number }> {
     const res = await fetch(`${API_URL}/api/v1/agents`);
