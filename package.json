@@ -1,0 +1,27 @@
+{
+  "name": "x402-observatory",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Control Tower for the Cronos Agentic Economy - Real-time indexing, search, and MCP integration for x402 agents",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w packages/api",
+    "dev:web": "npm run dev -w packages/web",
+    "dev:mcp": "npm run dev -w packages/mcp-server",
+    "build": "npm run build --workspaces",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down"
+  },
+  "keywords": [
+    "x402",
+    "cronos",
+    "blockchain",
+    "agents",
+    "mcp",
+    "observatory"
+  ],
+  "author": "x402 Observatory Team",
+  "license": "MIT"
+}
