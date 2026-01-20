@@ -4,7 +4,7 @@
 >
 > *Live on Cronos EVM Mainnet*
 
-![x402 Observatory Dashboard](packages/web/public/hero-dashboard.png)
+![x402 Observatory Dashboard](assets/hero-dashboard.png)
 
 <div align="center">
 
