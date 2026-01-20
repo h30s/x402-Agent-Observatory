@@ -183,7 +183,7 @@ export default function AnalyticsPage() {
                                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                                     }}
                                     itemStyle={{ fontSize: '12px' }}
-                                    formatter={(value) => [`$${(value ?? 0).toFixed(2)}`, 'Volume']}
+                                    formatter={(value) => [`$${Number(value ?? 0).toFixed(2)}`, 'Volume']}
                                 />
                                 <Area
                                     type="monotone"
