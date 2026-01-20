@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getAnalytics as getMockAnalytics, mockTransactions, mockAgentStats } from '../services/mockIndexer.js';
+import { getLiveNetworkStats } from '../services/chainFetcher.js';
 
 export const analyticsRouter = Router();
 
@@ -30,10 +31,19 @@ analyticsRouter.get('/health', (req, res) => {
         healthScore = 85;
     }
 
+    // Get live network stats from Cronos
+    const chainStats = getLiveNetworkStats();
+
     res.json({
         status: healthStatus,
         score: healthScore,
         ...analytics,
+        // Live chain data from Cronos
+        blockNumber: chainStats.blockNumber,
+        avgGas: chainStats.avgGas,
+        chainId: chainStats.chainId,
+        networkName: chainStats.networkName,
+        isLiveData: chainStats.isLive,
         totalTransactionsIndexed: mockTransactions.length,
         totalAgentsTracked: mockAgentStats.size,
         lastUpdated: new Date().toISOString(),

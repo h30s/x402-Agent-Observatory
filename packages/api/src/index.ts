@@ -9,6 +9,7 @@ import { searchRouter } from './routes/search.js';
 import { analyticsRouter } from './routes/analytics.js';
 import { anomaliesRouter } from './routes/anomalies.js';
 import { startMockIndexer } from './services/mockIndexer.js';
+import { initChainFetcher, getLiveNetworkStats, getLiveTransactions } from './services/chainFetcher.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -35,6 +36,18 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Live chain data endpoints
+app.get('/api/v1/chain/stats', (req, res) => {
+    const stats = getLiveNetworkStats();
+    res.json(stats);
+});
+
+app.get('/api/v1/chain/transactions', (req, res) => {
+    const limit = parseInt(req.query.limit as string) || 10;
+    const transactions = getLiveTransactions(limit);
+    res.json({ transactions, isLive: true, source: 'Cronos EVM' });
+});
+
 // WebSocket connection
 io.on('connection', (socket) => {
     console.log('Client connected:', socket.id);
@@ -53,6 +66,9 @@ httpServer.listen(PORT, () => {
     console.log(`🔭 x402 Observatory API running on port ${PORT}`);
     console.log(`   WebSocket ready for real-time updates`);
 
-    // Start mock indexer for demo
+    // Start chain fetcher for live Cronos data
+    initChainFetcher();
+
+    // Start mock indexer for enriched demo data
     startMockIndexer(io);
 });
