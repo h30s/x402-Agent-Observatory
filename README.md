@@ -1,138 +1,132 @@
-# 🔭 x402 Agent Observatory
+# 🔭 x402 Observatory
 
-> **The Control Tower for the Cronos Agentic Economy**
+> **The Command Center for the Cronos Agentic Economy**
+>
+> *Live on Cronos EVM Mainnet*
 
-Real-time indexing, visualization, and search for all x402 agent activity on Cronos blockchain.
+![x402 Observatory Dashboard](packages/web/public/hero-dashboard.png)
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Cronos](https://img.shields.io/badge/network-Cronos-blue)
-![x402](https://img.shields.io/badge/protocol-x402-purple)
+<div align="center">
 
-## 🌟 Features
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_App-blue?style=for-the-badge&logo=vercel)](https://x402-agent-observatory-web.vercel.app/)
+[![API Status](https://img.shields.io/badge/🟢_API_Status-Online-success?style=for-the-badge&logo=railway)](https://x402-observatoryapi-production.up.railway.app/api/v1/analytics/health)
+[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
-### Core Capabilities
-- **Real-Time Transaction Stream** - Live WebSocket feed of all x402 transactions
-- **Natural Language Search** - Query the ecosystem using plain English
-- **MCP Server for AI** - Claude and ChatGPT can directly query the observatory
-- **Analytics Dashboard** - Beautiful visualizations of ecosystem health
+</div>
 
-### What Problem Does It Solve?
-AI agents on Cronos using x402 operate in the dark. Developers have no way to:
-- See what agents are doing across the ecosystem
-- Search historical agent activity
-- Query agent behavior programmatically
-- Detect patterns or anomalies
+## 💡 The Problem
+In the emerging **Agentic Economy** on Cronos, AI agents are performing autonomous transactions using **x402** standards. However, "Agents operate in the dark."
 
-**x402 Observatory provides complete visibility.**
+1.  **Invisibility**: Developers cannot see what their agents are doing in real-time.
+2.  **No Standards**: There is no unified way to query agent behavior across different protocols.
+3.  **Black Box**: "Why did my agent fail?" is a question with no easy answer.
 
-## 🚀 Quick Start
+## ⚡ The Solution: x402 Observatory
+We built the **Google Analytics for AI Agents**. A unified "Data Virtualization Layer" that indexes, visualizes, and exposes agent activity via human-readable dashboards and **Machine-Readable APIs**.
 
-### Prerequisites
-- Node.js 20+
-- Docker (for PostgreSQL)
-- npm 9+
+### 🏆 Built for Track 4: Dev Tooling & Data Virtualization
+We solve the "Data Virtualization" challenge by creating a unified indexing layer that turns raw EVM logs into structured "Agent Intent" data.
 
-### Installation
+---
+
+## 🌟 Key Features
+
+### 1. 🧠 Natural Language Search (AI-Powered)
+Don't write SQL. Just ask.
+> "Show me all high-value payments from Agent Smith in the last 24h"
+
+Our system uses **OpenAI Embeddings** to semantically index every transaction, allowing for "Vague Search" that understands intent.
+
+### 2. 📊 Real-Time Control Tower
+- **Live Transaction Feed**: Websocket-driven stream of every x402 interaction.
+- **Agent Health Metrics**: Success rates, gas consumption analysis, and volume tracking.
+- **Protocol Dominance**: See which DeFi protocols (VVS, Ferro, Moonlander) are being used by agents.
+
+### 3. 🤖 MCP Server Integration (Agent-to-Agent)
+We expose our entire dataset via the **Model Context Protocol (MCP)**.
+- **Claude / ChatGPT Integration**: You can connect your local LLM directly to our Observatory.
+- **Agent-Readable**: Your agents can query *us* to make decisions (e.g., "Is the network congested?").
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    subgraph "Cronos Blockchain"
+        EVM[Cronos EVM]
+        x402[x402 Contracts]
+    end
+
+    subgraph "Data Virtualization Layer"
+        Indexer[Indexer Service]
+        VectorDB[(pgvector DB)]
+        API[Observatory API]
+        MCP[MCP Server]
+    end
+
+    subgraph "Presentation Layer"
+        Web[Next.js Dashboard]
+        Human[Human User]
+        AI_Agent[External AI Agent]
+        Claude[Claude Desktop]
+    end
+
+    EVM -->|Logs & Blocks| Indexer
+    Indexer -->|Structured Data| VectorDB
+    VectorDB -->|Semantic Search| API
+    API -->|WebSockets| Web
+    API -->|JSON/REST| MCP
+    
+    Web --> Human
+    MCP --> Claude
+    API --> AI_Agent
+```
+
+## 🚀 Live Demo URLs
+
+| Component | Status | URL |
+|-----------|--------|-----|
+| **Frontend Dashboard** | 🟢 Live | [https://x402-agent-observatory-web.vercel.app/](https://x402-agent-observatory-web.vercel.app/) |
+| **API Endpoint** | 🟢 Live | [https://x402-observatoryapi-production.up.railway.app/](https://x402-observatoryapi-production.up.railway.app/) |
+| **Health Check** | 🟢 Live | [Check API Health](https://x402-observatoryapi-production.up.railway.app/api/v1/analytics/health) |
+
+---
+
+## 🛠️ Tech Stack
+
+- **Chain**: Cronos EVM Mainnet
+- **Indexing**: Custom TypeScript Indexer + Ethers.js
+- **Database**: PostgreSQL + `pgvector` (for semantic search)
+- **AI/ML**: OpenAI `text-embedding-3-small` for transaction classification
+- **API**: Express.js + Socket.io (Real-time feeds)
+- **Frontend**: Next.js 14, TailwindCSS, Framer Motion, Recharts
+- **Integration**: Model Context Protocol (MCP) SDK
+
+## 📦 Local Installation
 
 ```bash
-# Clone repository
-git clone https://github.com/your-team/x402-observatory
-cd x402-observatory
+# Clone the repository
+git clone https://github.com/your-username/x402-observatory.git
 
 # Install dependencies
 npm install
 
-# Start database
-npm run db:up
+# Configure Environment
+cp packages/api/.env.example packages/api/.env
+# Add your CRONOS_RPC_URL and DATABASE_URL
 
-# Start API server (terminal 1)
-cd packages/api && npm run dev
-
-# Start frontend (terminal 2)
-cd packages/web && npm run dev
+# Start the Development Suite
+npm run dev
 ```
 
-Open http://localhost:3000 to view the dashboard.
+## 🔮 Roadmap
 
-## 📦 Project Structure
-
-```
-x402-observatory/
-├── packages/
-│   ├── api/              # Express.js REST API + WebSocket
-│   ├── web/              # Next.js 14 frontend dashboard
-│   └── mcp-server/       # MCP server for AI assistants
-├── scripts/
-│   └── init.sql          # Database schema
-├── docker-compose.yml    # PostgreSQL setup
-└── package.json          # Monorepo root
-```
-
-## 🔌 API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/transactions` | GET | List transactions with filters |
-| `/api/v1/search` | POST | Natural language search |
-| `/api/v1/agents` | GET | Agent leaderboard |
-| `/api/v1/agents/:address` | GET | Agent profile |
-| `/api/v1/analytics/overview` | GET | 24h analytics |
-| `/api/v1/analytics/health` | GET | Ecosystem health |
-
-## 🤖 MCP Integration
-
-The observatory exposes an MCP server that AI assistants can use to query the ecosystem.
-
-### Available Tools
-
-| Tool | Description |
-|------|-------------|
-| `query_x402_activity` | Search transactions with natural language |
-| `get_agent_profile` | Get detailed agent stats |
-| `get_ecosystem_health` | Check ecosystem metrics |
-| `get_top_agents` | Get agent leaderboard |
-
-### Claude Desktop Configuration
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "x402-observatory": {
-      "command": "node",
-      "args": ["/path/to/packages/mcp-server/dist/index.js"],
-      "env": {
-        "API_URL": "http://localhost:3001"
-      }
-    }
-  }
-}
-```
-
-## 🎨 Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Backend | Node.js, Express.js, Socket.io |
-| Database | PostgreSQL + pgvector |
-| Frontend | Next.js 14, Tailwind CSS, Recharts |
-| MCP | @modelcontextprotocol/sdk |
-
-## 🏆 Hackathon Track
-
-**Best Dev Tooling / Data Virtualization Layer**
-
-This project delivers:
-- ✅ Data virtualization / unified data layers
-- ✅ Indexing, search and agent-readable feeds  
-- ✅ MCP-compatible developer tools
-- ✅ Debugging, monitoring & observability
-
-## 📄 License
-
-MIT License - see LICENSE file for details.
+- [ ] **Transaction Simulation**: Predict outcome before sending (using Tenderly API).
+- [ ] **Alerting System**: Webhook notifications for specific agent failures.
+- [ ] **Multi-Chain Support**: Expand to Cronos zkEVM.
 
 ---
 
-Built with 💜 for the Cronos x402 Paytech Hackathon
+### 💜 Built for Cronos x402 Paytech Hackathon 2026
+*By the x402 Observatory Team*
