@@ -183,7 +183,7 @@ export default function AnalyticsPage() {
                                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                                     }}
                                     itemStyle={{ fontSize: '12px' }}
-                                    formatter={(value: number) => [`$${value.toFixed(2)}`, 'Volume']}
+                                    formatter={(value) => [`$${(value ?? 0).toFixed(2)}`, 'Volume']}
                                 />
                                 <Area
                                     type="monotone"
@@ -259,8 +259,8 @@ export default function AnalyticsPage() {
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${parseFloat(protocol.successRate) >= 0.9
-                                                ? 'bg-green-50 text-green-700'
-                                                : 'bg-yellow-50 text-yellow-700'
+                                            ? 'bg-green-50 text-green-700'
+                                            : 'bg-yellow-50 text-yellow-700'
                                             }`}>
                                             {(parseFloat(protocol.successRate) * 100).toFixed(1)}%
                                         </span>
