@@ -55,7 +55,7 @@ export default function DashboardPage() {
                   ))}
                 </div>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-h-0 h-[300px]">
                 {analytics && <VolumeChart data={analytics.hourlyVolume} />}
               </div>
             </div>
