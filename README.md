@@ -129,4 +129,4 @@ npm run dev
 ---
 
 ### 💜 Built for Cronos x402 Paytech Hackathon 2026
-*By the x402 Observatory Team*
+*By the x402 Observatory Team h30s*
